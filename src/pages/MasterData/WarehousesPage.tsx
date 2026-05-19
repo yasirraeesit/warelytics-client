@@ -1,0 +1,155 @@
+import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../../api/client';
+import type { ListResponse, Warehouse } from '../../api/types';
+
+type Props = { token: string };
+
+export function WarehousesPage({ token }: Props) {
+  const [q, setQ] = useState('');
+  const [skip, setSkip] = useState(0);
+  const take = 20;
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<ListResponse<Warehouse> | null>(null);
+
+  const [code, setCode] = useState('');
+  const [name, setName] = useState('');
+
+  const query = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set('skip', String(skip));
+    params.set('take', String(take));
+    if (q.trim()) params.set('q', q.trim());
+    return `?${params.toString()}`;
+  }, [q, skip]);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await apiFetch<ListResponse<Warehouse>>(`/warehouses${query}`, { token });
+      setData(res);
+    } catch (e: any) {
+      setError(e?.message ?? 'Failed to load warehouses');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  async function createWarehouse() {
+    setError(null);
+    try {
+      await apiFetch<Warehouse>('/warehouses', {
+        method: 'POST',
+        token,
+        json: { code, name },
+      });
+      setCode('');
+      setName('');
+      setSkip(0);
+      await load();
+    } catch (e: any) {
+      setError(e?.message ?? 'Failed to create warehouse');
+    }
+  }
+
+  async function deleteWarehouse(id: string) {
+    if (!confirm('Delete this warehouse?')) return;
+    setError(null);
+    try {
+      await apiFetch(`/warehouses/${id}`, { method: 'DELETE', token });
+      await load();
+    } catch (e: any) {
+      setError(e?.message ?? 'Failed to delete warehouse');
+    }
+  }
+
+  return (
+    <div className="page">
+      <div className="pageHeader">
+        <h2>Warehouses</h2>
+        <div className="row">
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search code/name…" />
+          <button type="button" onClick={() => setSkip(0)}>
+            Search
+          </button>
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>Create warehouse</h3>
+        <div className="row">
+          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Code (e.g. WH-KHI)" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+          <button type="button" onClick={createWarehouse} disabled={!code.trim() || !name.trim()}>
+            Create
+          </button>
+        </div>
+      </div>
+
+      {error ? <div className="error">{error}</div> : null}
+      {loading ? <div className="muted">Loading…</div> : null}
+
+      <div className="card">
+        <div className="tableWrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {(data?.items ?? []).map((w) => (
+                <tr key={w.id}>
+                  <td>
+                    <code>{w.code}</code>
+                  </td>
+                  <td>{w.name}</td>
+                  <td className="right">
+                    <button type="button" className="danger" onClick={() => deleteWarehouse(w.id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {!loading && (data?.items?.length ?? 0) === 0 ? (
+                <tr>
+                  <td colSpan={3} className="muted">
+                    No warehouses found.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="row spaceBetween">
+          <div className="muted">
+            Total: {data?.total ?? 0} | Page: {Math.floor((data?.skip ?? 0) / take) + 1}
+          </div>
+          <div className="row">
+            <button type="button" onClick={() => setSkip(Math.max(0, skip - take))} disabled={skip === 0}>
+              Prev
+            </button>
+            <button
+              type="button"
+              onClick={() => setSkip(skip + take)}
+              disabled={(data?.items?.length ?? 0) < take}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

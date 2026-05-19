@@ -1,14 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import { apiFetch, API_URL } from './api/client'
+import type { LoginResponse } from './api/types'
+import { getToken, setToken } from './auth/session'
+import { WarehousesPage } from './pages/MasterData/WarehousesPage'
+import { ZonesPage } from './pages/MasterData/ZonesPage'
+import { PlantsPage } from './pages/MasterData/PlantsPage'
+
+type Tab = 'warehouses' | 'zones' | 'plants'
 
 function App() {
   const [count, setCount] = useState(0)
   const [apiStatus, setApiStatus] = useState<'idle' | 'ok' | 'error'>('idle')
-  const [token, setToken] = useState<string | null>(null)
+  const [token, setTokenState] = useState<string | null>(() => getToken())
+  const [tab, setTab] = useState<Tab>('warehouses')
+
+  const isAuthed = useMemo(() => Boolean(token), [token])
 
   useEffect(() => {
     let cancelled = false
@@ -20,17 +30,70 @@ function App() {
     }
   }, [])
 
-  async function loginAsAdmin() {
-    const res = await apiFetch<{ accessToken: string }>('/auth/login', {
+  async function login(email: string, password: string) {
+    const res = await apiFetch<LoginResponse>('/auth/login', {
       method: 'POST',
-      json: { email: 'admin@warelytics.local', password: 'Password123!' },
+      json: { email, password },
     })
     setToken(res.accessToken)
+    setTokenState(res.accessToken)
+  }
+
+  function logout() {
+    setToken(null)
+    setTokenState(null)
   }
 
   return (
     <>
-      <section id="center">
+      <header className="topbar">
+        <div className="row spaceBetween">
+          <div className="row">
+            <strong>Warelytics Admin</strong>
+            <span className="muted">
+              API <code>{API_URL}</code> — <strong>{apiStatus === 'idle' ? 'checking…' : apiStatus}</strong>
+            </span>
+          </div>
+          <div className="row">
+            {isAuthed ? (
+              <>
+                <span className="muted">
+                  Auth: <code>on</code>
+                </span>
+                <button type="button" onClick={logout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <LoginInline onLogin={login} />
+            )}
+          </div>
+        </div>
+        <nav className="tabs">
+          <button
+            type="button"
+            className={tab === 'warehouses' ? 'active' : ''}
+            onClick={() => setTab('warehouses')}
+          >
+            Warehouses
+          </button>
+          <button type="button" className={tab === 'zones' ? 'active' : ''} onClick={() => setTab('zones')}>
+            Zones
+          </button>
+          <button type="button" className={tab === 'plants' ? 'active' : ''} onClick={() => setTab('plants')}>
+            Plants
+          </button>
+        </nav>
+      </header>
+
+      {isAuthed ? (
+        <main className="main">
+          {tab === 'warehouses' ? <WarehousesPage token={token!} /> : null}
+          {tab === 'zones' ? <ZonesPage token={token!} /> : null}
+          {tab === 'plants' ? <PlantsPage token={token!} /> : null}
+        </main>
+      ) : (
+        <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
           <img src={reactLogo} className="framework" alt="React logo" />
@@ -41,16 +104,16 @@ function App() {
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
-          <p>
-            API: <code>{API_URL}</code> — status:{' '}
-            <strong>{apiStatus === 'idle' ? 'checking…' : apiStatus}</strong>
+          <p className="muted">
+            Login to manage master data (Warehouses/Zones/Plants).
           </p>
-          <p>
-            Auth token: <code>{token ? 'set' : 'not set'}</code>
-          </p>
-          <button type="button" className="counter" onClick={loginAsAdmin}>
-            Login as seeded admin
-          </button>
+          <div className="card">
+            <LoginInline
+              onLogin={login}
+              defaultEmail="admin@warelytics.local"
+              defaultPassword="Password123!"
+            />
+          </div>
         </div>
         <button
           type="button"
@@ -60,6 +123,7 @@ function App() {
           Count is {count}
         </button>
       </section>
+      )}
 
       <div className="ticks"></div>
 
@@ -151,3 +215,46 @@ function App() {
 }
 
 export default App
+
+function LoginInline({
+  onLogin,
+  defaultEmail = '',
+  defaultPassword = '',
+}: {
+  onLogin: (email: string, password: string) => Promise<void>
+  defaultEmail?: string
+  defaultPassword?: string
+}) {
+  const [email, setEmail] = useState(defaultEmail)
+  const [password, setPassword] = useState(defaultPassword)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function submit() {
+    setLoading(true)
+    setError(null)
+    try {
+      await onLogin(email, password)
+    } catch (e: any) {
+      setError(e?.message ?? 'Login failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="row">
+      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+      <input
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+        type="password"
+      />
+      <button type="button" onClick={submit} disabled={!email.trim() || !password || loading}>
+        {loading ? 'Logging in…' : 'Login'}
+      </button>
+      {error ? <span className="error">{error}</span> : null}
+    </div>
+  )
+}
