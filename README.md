@@ -6,7 +6,7 @@ Mobile-first, responsive admin dashboard for inventory analytics, KPI tracking, 
 
 ## Repositories
 - Backend API: `yasirraeesit/warelytics-backend`
-- Admin dashboard (this repo): `yasirraeesit/warelytics-admin-dashboard`
+- Client (this repo): `yasirraeesit/warelytics-client`
 - Mobile app: `yasirraeesit/warelytics-mobile-app`
 
 ## Features (Planned/Building)
@@ -41,4 +41,3 @@ During implementation this app will read:
 
 ## Project Plan
 See `PROJECT.md`.
-

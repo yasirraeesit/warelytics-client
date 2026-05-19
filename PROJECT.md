@@ -1,6 +1,6 @@
 # QR Inventory Tracking & Analytics System — Frontend Plan (Admin Dashboard)
 
-**Repo:** `warelytics-admin-dashboard`  
+**Repo:** `warelytics-client`  
 **Goal:** a production-style analytics dashboard consuming real backend APIs (KPIs, charts, paginated tables, exports).
 
 ---
@@ -82,4 +82,3 @@
 - Role-based UI gating (ADMIN/MANAGER/VIEWER)
 - Performance: query caching, debounce search, pagination UX
 - Docs: screenshots + usage notes
-
