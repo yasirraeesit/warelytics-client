@@ -1,8 +1,8 @@
-# QR Inventory Tracking & Analytics System — Admin Dashboard
+# Warelytics — Client Portal (Tenant)
 
-Mobile-first, responsive admin dashboard for inventory analytics, KPI tracking, scan logs, movement history, alerts, and exports.
+Tenant-facing web portal for inventory operations and analytics (scoped to a single company/tenant).
 
-**Tech stack:** React + Vite + TypeScript, Tailwind CSS, Recharts, Axios
+**Tech stack:** React + Vite + TypeScript
 
 ## Repositories
 - Backend API: `yasirraeesit/warelytics-backend`
@@ -37,7 +37,7 @@ npm run dev
 
 ## Configuration
 During implementation this app will read:
-- `VITE_API_BASE_URL` (backend base URL)
+- `VITE_API_URL` (backend base URL)
 
 ## Project Plan
 See `PROJECT.md`.

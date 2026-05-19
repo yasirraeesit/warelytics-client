@@ -1,20 +1,19 @@
-# QR Inventory Tracking & Analytics System — Frontend Plan (Admin Dashboard)
+# Warelytics — Frontend Plan (Client Portal)
 
 **Repo:** `warelytics-client`  
-**Goal:** a production-style analytics dashboard consuming real backend APIs (KPIs, charts, paginated tables, exports).
+**Goal:** a tenant portal consuming real backend APIs (master data, products/QR, scans, movements, analytics, exports).
 
 ---
 
 ## Timeline (6 Weeks, overlaps backend/mobile)
 
 ### Phase A — Setup & Layout System (Week 1)
-- Tailwind CSS setup + base theme (mobile-first)
-- App shell: sidebar (desktop) + bottom nav (mobile), header, breadcrumbs
+- App shell: navigation (desktop + mobile), header
 - Auth scaffolding: login route, protected routes, token storage
-- Axios client + interceptors (attach token, handle 401)
+- Fetch-based API client (attach token, handle 401)
 
 **Deliverables**
-- `/login` + protected `/` route
+- `/login` + protected routes
 - Responsive layout working on mobile and desktop
 
 ---
