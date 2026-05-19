@@ -1,11 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import { apiFetch, API_URL } from './api/client'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [apiStatus, setApiStatus] = useState<'idle' | 'ok' | 'error'>('idle')
+  const [token, setToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    apiFetch<string>('/')
+      .then(() => !cancelled && setApiStatus('ok'))
+      .catch(() => !cancelled && setApiStatus('error'))
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  async function loginAsAdmin() {
+    const res = await apiFetch<{ accessToken: string }>('/auth/login', {
+      method: 'POST',
+      json: { email: 'admin@warelytics.local', password: 'Password123!' },
+    })
+    setToken(res.accessToken)
+  }
 
   return (
     <>
@@ -20,6 +41,16 @@ function App() {
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
+          <p>
+            API: <code>{API_URL}</code> — status:{' '}
+            <strong>{apiStatus === 'idle' ? 'checking…' : apiStatus}</strong>
+          </p>
+          <p>
+            Auth token: <code>{token ? 'set' : 'not set'}</code>
+          </p>
+          <button type="button" className="counter" onClick={loginAsAdmin}>
+            Login as seeded admin
+          </button>
         </div>
         <button
           type="button"
