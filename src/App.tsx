@@ -1,7 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 import { apiFetch, API_URL } from './api/client'
 import type { LoginResponse } from './api/types'
@@ -13,7 +10,6 @@ import { PlantsPage } from './pages/MasterData/PlantsPage'
 type Tab = 'warehouses' | 'zones' | 'plants'
 
 function App() {
-  const [count, setCount] = useState(0)
   const [apiStatus, setApiStatus] = useState<'idle' | 'ok' | 'error'>('idle')
   const [token, setTokenState] = useState<string | null>(() => getToken())
   const [tab, setTab] = useState<Tab>('warehouses')
@@ -65,25 +61,27 @@ function App() {
                 </button>
               </>
             ) : (
-              <LoginInline onLogin={login} />
+              <span className="muted">Login to continue</span>
             )}
           </div>
         </div>
-        <nav className="tabs">
-          <button
-            type="button"
-            className={tab === 'warehouses' ? 'active' : ''}
-            onClick={() => setTab('warehouses')}
-          >
-            Warehouses
-          </button>
-          <button type="button" className={tab === 'zones' ? 'active' : ''} onClick={() => setTab('zones')}>
-            Zones
-          </button>
-          <button type="button" className={tab === 'plants' ? 'active' : ''} onClick={() => setTab('plants')}>
-            Plants
-          </button>
-        </nav>
+        {isAuthed ? (
+          <nav className="tabs">
+            <button
+              type="button"
+              className={tab === 'warehouses' ? 'active' : ''}
+              onClick={() => setTab('warehouses')}
+            >
+              Warehouses
+            </button>
+            <button type="button" className={tab === 'zones' ? 'active' : ''} onClick={() => setTab('zones')}>
+              Zones
+            </button>
+            <button type="button" className={tab === 'plants' ? 'active' : ''} onClick={() => setTab('plants')}>
+              Plants
+            </button>
+          </nav>
+        ) : null}
       </header>
 
       {isAuthed ? (
@@ -93,123 +91,31 @@ function App() {
           {tab === 'plants' ? <PlantsPage token={token!} /> : null}
         </main>
       ) : (
-        <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Warelytics Admin</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-          <p className="muted">
-            Login to manage master data (Warehouses/Zones/Plants).
-          </p>
-          <div className="card">
-            <LoginInline
-              onLogin={login}
-              defaultEmail="admin@warelytics.local"
-              defaultPassword="Password123!"
-            />
+        <main className="main">
+          <div className="loginWrap">
+            <div className="loginCard">
+              <div className="loginHeader">
+                <div className="badge">Warelytics</div>
+                <h1 className="loginTitle">Sign in</h1>
+                <p className="muted">Use the seeded admin to access Warehouses/Zones/Plants.</p>
+              </div>
+              <LoginInline
+                onLogin={login}
+                defaultEmail="admin@warelytics.local"
+                defaultPassword="Password123!"
+              />
+              <p className="muted small">
+                Seeded password: <code>Password123!</code>
+              </p>
+              {apiStatus === 'error' ? (
+                <p className="error small">
+                  API check failed. Confirm backend is running on <code>{API_URL}</code>.
+                </p>
+              ) : null}
+            </div>
           </div>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        </main>
       )}
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </>
   )
 }

@@ -115,3 +115,41 @@ select {
 button.danger {
   border-color: rgba(255, 0, 0, 0.35);
 }
+
+.small {
+  font-size: 0.92rem;
+}
+
+.loginWrap {
+  min-height: calc(100vh - 110px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginCard {
+  width: min(760px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.loginHeader {
+  margin-bottom: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 58, 237, 0.55);
+  background: rgba(124, 58, 237, 0.15);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
+}
+
+.loginTitle {
+  margin: 6px 0 6px 0;
+}
