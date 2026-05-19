@@ -45,7 +45,7 @@ function App() {
       <header className="topbar">
         <div className="row spaceBetween">
           <div className="row">
-            <strong>Warelytics Admin</strong>
+            <strong>Warelytics Client</strong>
             <span className="muted">
               API <code>{API_URL}</code> — <strong>{apiStatus === 'idle' ? 'checking…' : apiStatus}</strong>
             </span>
@@ -97,7 +97,7 @@ function App() {
               <div className="loginHeader">
                 <div className="badge">Warelytics</div>
                 <h1 className="loginTitle">Sign in</h1>
-                <p className="muted">Use the seeded admin to access Warehouses/Zones/Plants.</p>
+                <p className="muted">Tenant portal access (company users).</p>
               </div>
               <LoginInline
                 onLogin={login}
