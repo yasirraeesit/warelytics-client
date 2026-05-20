@@ -1,63 +1,57 @@
-/* Global styles */
-:root {
-  color-scheme: dark;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
-    "Segoe UI Emoji";
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  --bg: #0b0b12;
-  --panel: rgba(255, 255, 255, 0.04);
-  --border: rgba(255, 255, 255, 0.1);
-  --text: rgba(255, 255, 255, 0.92);
-  --muted: rgba(255, 255, 255, 0.72);
-  --primary: #7c3aed;
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  [data-theme='light'] {
+    color-scheme: light;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply m-0 bg-[#0b0b12] text-white/90;
+    background:
+      radial-gradient(1200px 700px at 40% -20%, rgba(124, 58, 237, 0.28), transparent 60%),
+      radial-gradient(900px 600px at 90% 20%, rgba(34, 197, 94, 0.14), transparent 55%),
+      #0b0b12;
+  }
+
+  [data-theme='light'] body {
+    @apply bg-[#f7f8fb] text-black/90;
+    background:
+      radial-gradient(1200px 700px at 35% -10%, rgba(109, 40, 217, 0.12), transparent 58%),
+      radial-gradient(900px 600px at 90% 20%, rgba(5, 150, 105, 0.1), transparent 55%),
+      #f7f8fb;
+  }
+
+  code {
+    @apply font-mono text-[0.95em];
+  }
+
+  button {
+    @apply cursor-pointer rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-white/90 hover:border-white/25 disabled:cursor-not-allowed disabled:opacity-60;
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  background: radial-gradient(1200px 700px at 40% -20%, rgba(124, 58, 237, 0.28), transparent 60%),
-    radial-gradient(900px 600px at 90% 20%, rgba(34, 197, 94, 0.14), transparent 55%),
-    var(--bg);
-  color: var(--text);
-}
-
-a {
-  color: inherit;
-}
-
-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.95em;
-}
-
-button {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
-  cursor: pointer;
-}
-
-button:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-#root {
-  min-height: 100%;
+@layer utilities {
+  .animate-content-in {
+    animation: contentIn 200ms ease;
+  }
+  @keyframes contentIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }

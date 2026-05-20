@@ -18,6 +18,7 @@ export function ZonesPage({ token }: Props) {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [createWarehouseId, setCreateWarehouseId] = useState('');
+  const [createSubmitted, setCreateSubmitted] = useState(false);
 
   const query = useMemo(() => {
     const params = new URLSearchParams();
@@ -58,6 +59,8 @@ export function ZonesPage({ token }: Props) {
   }, [query]);
 
   async function createZone() {
+    setCreateSubmitted(true);
+    if (!code.trim() || !name.trim() || !createWarehouseId) return;
     setError(null);
     try {
       await apiFetch<Zone>('/zones', {
@@ -67,6 +70,7 @@ export function ZonesPage({ token }: Props) {
       });
       setCode('');
       setName('');
+      setCreateSubmitted(false);
       setSkip(0);
       await loadZones();
     } catch (e: any) {
@@ -86,12 +90,24 @@ export function ZonesPage({ token }: Props) {
   }
 
   return (
-    <div className="page">
-      <div className="pageHeader">
-        <h2>Zones</h2>
-        <div className="row">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search code/name…" />
-          <select value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)}>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-extrabold tracking-wide">Zones</h2>
+          <div className="text-sm text-white/70">Manage zones by warehouse.</div>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <input
+            className="w-[min(360px,55vw)] rounded-xl border border-white/15 bg-black/20 px-3 py-2 outline-none focus:border-purple-500/60"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search code/name…"
+          />
+          <select
+            className="rounded-xl border border-white/15 bg-black/20 px-3 py-2 outline-none focus:border-purple-500/60"
+            value={warehouseId}
+            onChange={(e) => setWarehouseId(e.target.value)}
+          >
             <option value="">All warehouses</option>
             {warehouses.map((w) => (
               <option key={w.id} value={w.id}>
@@ -99,58 +115,106 @@ export function ZonesPage({ token }: Props) {
               </option>
             ))}
           </select>
-          <button type="button" onClick={() => setSkip(0)}>
+          <button type="button" className="rounded-xl border border-white/15 bg-black/10 px-3 py-2 hover:border-white/25" onClick={() => setSkip(0)}>
             Search
           </button>
         </div>
       </div>
 
-      <div className="card">
-        <h3>Create zone</h3>
-        <div className="row">
-          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Code (e.g. Z1)" />
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
-          <select value={createWarehouseId} onChange={(e) => setCreateWarehouseId(e.target.value)}>
-            {warehouses.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.code} — {w.name}
+      <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+        <h3 className="mb-3 text-lg font-bold">Create zone</h3>
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 md:col-span-3">
+            <div className="text-sm text-white/80">Code</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-white/15 bg-black/20 px-3 py-2 outline-none focus:border-purple-500/60"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="e.g. Z1"
+            />
+            {createSubmitted && !code.trim() ? <div className="mt-1 text-sm text-red-400">Code is required.</div> : null}
+          </div>
+          <div className="col-span-12 md:col-span-5">
+            <div className="text-sm text-white/80">Name</div>
+            <input
+              className="mt-1 w-full rounded-xl border border-white/15 bg-black/20 px-3 py-2 outline-none focus:border-purple-500/60"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Receiving"
+            />
+            {createSubmitted && !name.trim() ? <div className="mt-1 text-sm text-red-400">Name is required.</div> : null}
+          </div>
+          <div className="col-span-12 md:col-span-4">
+            <div className="text-sm text-white/80">Warehouse</div>
+            <select
+              className="mt-1 w-full rounded-xl border border-white/15 bg-black/20 px-3 py-2 outline-none focus:border-purple-500/60"
+              value={createWarehouseId}
+              onChange={(e) => setCreateWarehouseId(e.target.value)}
+            >
+              <option value="" disabled>
+                Select warehouse…
               </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={createZone}
-            disabled={!code.trim() || !name.trim() || !createWarehouseId}
-          >
-            Create
-          </button>
+              {warehouses.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.code} — {w.name}
+                </option>
+              ))}
+            </select>
+            {createSubmitted && !createWarehouseId ? (
+              <div className="mt-1 text-sm text-red-400">Warehouse is required.</div>
+            ) : null}
+          </div>
+          <div className="col-span-12 flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="rounded-xl border border-purple-500/55 bg-purple-500/20 px-3 py-2 font-semibold hover:border-purple-500/75"
+              onClick={createZone}
+            >
+              Create zone
+            </button>
+            <button
+              type="button"
+              className="rounded-xl border border-white/15 bg-black/10 px-3 py-2 hover:border-white/25"
+              onClick={() => {
+                setCode('')
+                setName('')
+                setCreateSubmitted(false)
+              }}
+            >
+              Clear
+            </button>
+          </div>
         </div>
       </div>
 
-      {error ? <div className="error">{error}</div> : null}
-      {loading ? <div className="muted">Loading…</div> : null}
+      {error ? <div className="text-red-400">{error}</div> : null}
+      {loading ? <div className="text-white/70">Loading…</div> : null}
 
-      <div className="card">
-        <div className="tableWrap">
-          <table className="table">
+      <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+        <div className="overflow-auto rounded-2xl border border-white/10">
+          <table className="w-full border-collapse">
             <thead>
-              <tr>
-                <th>Code</th>
-                <th>Name</th>
-                <th>Warehouse</th>
-                <th />
+              <tr className="sticky top-0 bg-black/40 backdrop-blur">
+                <th className="border-b border-white/10 p-3 text-left font-semibold">Code</th>
+                <th className="border-b border-white/10 p-3 text-left font-semibold">Name</th>
+                <th className="border-b border-white/10 p-3 text-left font-semibold">Warehouse</th>
+                <th className="border-b border-white/10 p-3 text-right font-semibold" />
               </tr>
             </thead>
             <tbody>
               {(data?.items ?? []).map((z) => (
-                <tr key={z.id}>
-                  <td>
+                <tr key={z.id} className="odd:bg-white/[0.02] hover:bg-purple-500/5">
+                  <td className="border-b border-white/10 p-3">
                     <code>{z.code}</code>
                   </td>
-                  <td>{z.name}</td>
-                  <td className="muted">{z.warehouse?.code ?? z.warehouseId}</td>
-                  <td className="right">
-                    <button type="button" className="danger" onClick={() => deleteZone(z.id)}>
+                  <td className="border-b border-white/10 p-3">{z.name}</td>
+                  <td className="border-b border-white/10 p-3 text-white/70">{z.warehouse?.code ?? z.warehouseId}</td>
+                  <td className="border-b border-white/10 p-3 text-right">
+                    <button
+                      type="button"
+                      className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 hover:border-red-500/40"
+                      onClick={() => deleteZone(z.id)}
+                    >
                       Delete
                     </button>
                   </td>
@@ -158,7 +222,7 @@ export function ZonesPage({ token }: Props) {
               ))}
               {!loading && (data?.items?.length ?? 0) === 0 ? (
                 <tr>
-                  <td colSpan={4} className="muted">
+                  <td colSpan={4} className="p-3 text-white/70">
                     No zones found.
                   </td>
                 </tr>
@@ -167,16 +231,22 @@ export function ZonesPage({ token }: Props) {
           </table>
         </div>
 
-        <div className="row spaceBetween">
-          <div className="muted">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="text-white/70">
             Total: {data?.total ?? 0} | Page: {Math.floor((data?.skip ?? 0) / take) + 1}
           </div>
-          <div className="row">
-            <button type="button" onClick={() => setSkip(Math.max(0, skip - take))} disabled={skip === 0}>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded-xl border border-white/15 bg-black/10 px-3 py-2 hover:border-white/25 disabled:opacity-60"
+              onClick={() => setSkip(Math.max(0, skip - take))}
+              disabled={skip === 0}
+            >
               Prev
             </button>
             <button
               type="button"
+              className="rounded-xl border border-white/15 bg-black/10 px-3 py-2 hover:border-white/25 disabled:opacity-60"
               onClick={() => setSkip(skip + take)}
               disabled={(data?.items?.length ?? 0) < take}
             >
@@ -188,4 +258,3 @@ export function ZonesPage({ token }: Props) {
     </div>
   );
 }
-

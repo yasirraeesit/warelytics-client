@@ -29,6 +29,13 @@ Tenant-facing web portal for inventory operations and analytics (scoped to a sin
   - CSV exports (scan logs, movements)
   - KPI summary export (PDF/CSV depending on backend)
 
+## Header UX (Ops-Focused)
+- Warehouse context: selection persists via `localStorage` (`warelytics.warehouseId`) and `?warehouseId=...`.
+- Global search: scoped search (Inv/Loc/Scans/Moves) writes `?q=...` and navigates to the selected module.
+- Quick actions: `Scan` (primary) and `New item` (opens Products create via `?create=1`).
+- Responsive behavior: header uses wrapping flex to avoid overlaps; on narrower widths the search drops to its own row.
+- Dev-only: `API` chip shows backend URL + health status (only in dev builds).
+
 ## Local Setup
 ```bash
 npm install
